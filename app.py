@@ -9,20 +9,22 @@ from nltk.stem import WordNetLemmatizer
 import numpy as np
 import pandas as pd
 
-@st.cache_resource
-def load_nltk():
-    nltk.download("punkt")
-    nltk.download("stopwords")
-
-load_nltk()
-
 # -----------------------------
-# NLTK setup
+# Safe NLTK setup (run once)
 # -----------------------------
-nltk.download("punkt")
-nltk.download("stopwords")
-nltk.download("wordnet")
-nltk.download("omw-1.4")
+nltk_packages = {
+    "punkt": "tokenizers/punkt",
+    "stopwords": "corpora/stopwords",
+    "wordnet": "corpora/wordnet",
+    "omw-1.4": "corpora/omw-1.4"
+}
+
+for pkg, path in nltk_packages.items():
+    try:
+        nltk.data.find(path)
+    except LookupError:
+        nltk.download(pkg)
+
 
 stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
