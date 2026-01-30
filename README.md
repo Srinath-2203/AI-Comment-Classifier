@@ -110,17 +110,17 @@ streamlit run app.py
 
 🧪 Example Predictions
 
-Input	Prediction
+Input	                 Prediction
 
-hi	Neutral
+hi	                    Neutral
 
-i love you so much	Love
+i love you so much	     Love
 
-you are stupid	Insult
+you are stupid	        Insult
 
-i will hurt you	Threat
+i will hurt you       	Threat
 
-stop messaging me	Harassment
+stop messaging me     	Harassment
 
 📌 Notes
 
