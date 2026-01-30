@@ -1,0 +1,98 @@
+\# 🤖 AI Comment Classifier
+
+
+
+A Machine Learning + NLP project that classifies user comments into:
+
+
+
+\*\*Hate | Insult | Threat | Love | Harassment | Neutral\*\*
+
+
+
+Built using TF-IDF and a calibrated Linear SVM, with a Streamlit web interface.
+
+
+
+---
+
+
+
+\## 🔍 Features
+
+
+
+\- Real-time comment classification
+
+\- Confidence scores for each class
+
+\- Balanced dataset (960+ samples)
+
+\- Classical ML with explainability
+
+\- Streamlit-based UI demo
+
+
+
+---
+
+
+
+\## 🧠 Model Details
+
+
+
+\- \*\*Text Processing:\*\* Tokenization, stopword removal, lemmatization
+
+\- \*\*Vectorization:\*\* TF-IDF (1–2 grams)
+
+\- \*\*Classifier:\*\* LinearSVC + CalibratedClassifierCV
+
+\- \*\*Evaluation:\*\* Stratified train-validation split
+
+
+
+---
+
+
+
+\## 📁 Project Structure
+
+
+
+AI-Comment-Classifier/
+
+│── app.py # Streamlit app
+
+│── train.py # Model training
+
+│── generate\_data.py # Dataset augmentation
+
+│── data/
+
+│ ├── comments\_seed.csv
+
+│ └── comments.csv
+
+│── requirements.txt
+
+│── .gitignore
+
+
+
+---
+
+
+
+\## 🚀 Run Locally
+
+
+
+\### 1️⃣ Install dependencies
+
+```bash
+
+pip install -r requirements.txt
+
+
+
