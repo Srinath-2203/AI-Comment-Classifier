@@ -96,3 +96,51 @@ pip install -r requirements.txt
 
 
 
+2️⃣ Train the model
+
+python train.py
+
+
+
+3️⃣ Run the app
+
+streamlit run app.py
+
+
+
+🧪 Example Predictions
+
+Input	Prediction
+
+hi	Neutral
+
+i love you so much	Love
+
+you are stupid	Insult
+
+i will hurt you	Threat
+
+stop messaging me	Harassment
+
+📌 Notes
+
+
+
+Model files are excluded from GitHub via .gitignore
+
+
+
+Dataset is intentionally balanced to avoid bias
+
+
+
+Designed as a learning + portfolio project
+
+
+
+👤 Author
+
+
+
+Srinath
+
