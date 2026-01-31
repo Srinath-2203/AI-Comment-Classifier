@@ -81,8 +81,21 @@ AI-Comment-Classifier/
 
 
 ---
-## 🚀 Demo Screenshot
-![AI Comment Classifier Demo](demo1.png)
+---
+
+## 📸 App Screenshots
+
+### 🔹 Main Prediction Interface
+![Main UI](demo.jpeg)
+
+### 🔹 Prediction Result with Confidence
+![Prediction Result](demo2.jpeg)
+
+### 🔹 Top-3 Class Probabilities
+![Top Predictions](demo3.jpeg)
+
+### 🔹 Probability Distribution Chart
+![Probability Chart](demo4.jpeg)
 ----
 
 \## 🚀 Run Locally
