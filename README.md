@@ -85,16 +85,16 @@ AI-Comment-Classifier/
 
 ## 📸 App Screenshots
 
-### 🔹 Main Prediction Interface
+### 🔹  Prediction1
 ![Main UI](demo.jpeg)
 
-### 🔹 Prediction Result with Confidence
+### 🔹 Prediction2
 ![Prediction Result](demo2.jpeg)
 
-### 🔹 Top-3 Class Probabilities
+### 🔹 Prediction3
 ![Top Predictions](demo3.jpeg)
 
-### 🔹 Probability Distribution Chart
+### 🔹 Prediction4
 ![Probability Chart](demo4.jpeg)
 ----
 
