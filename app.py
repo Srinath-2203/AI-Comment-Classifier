@@ -29,12 +29,21 @@ for pkg, path in nltk_packages.items():
 stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
 
-# -----------------------------
-# Load model & vectorizer
-# -----------------------------
-model = joblib.load("models/classifier_model.pkl")
-vectorizer = joblib.load("models/vectorizer.pkl")
-label_encoder = joblib.load("models/label_encoder.pkl")
+import os
+import subprocess
+
+MODEL_PATH = "models/classifier_model.pkl"
+VECT_PATH = "models/vectorizer.pkl"
+ENC_PATH = "models/label_encoder.pkl"
+
+# Train model if not present (Streamlit Cloud fix)
+if not os.path.exists(MODEL_PATH):
+    subprocess.run(["python", "train.py"], check=True)
+
+model = joblib.load(MODEL_PATH)
+vectorizer = joblib.load(VECT_PATH)
+label_encoder = joblib.load(ENC_PATH)
+
 
 # -----------------------------
 # Labels, colors & emojis
