@@ -1,4 +1,4 @@
-# Streamlit Pro-Level AI Comment Classifier (Modern UI)
+# Streamlit Pro-Level AI Comment Classifier (FIXED & STABLE)
 
 import streamlit as st
 import joblib
@@ -6,19 +6,27 @@ import re
 import nltk
 import numpy as np
 import pandas as pd
-import os
-
+from pathlib import Path
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
 # -----------------------------
-# Streamlit config (FIRST)
+# Absolute base path (CRITICAL FIX)
 # -----------------------------
-st.set_page_config(
-    page_title="AI Comment Classifier",
-    layout="wide",
-    page_icon="🤖"
-)
+BASE_DIR = Path(__file__).resolve().parent
+MODELS_DIR = BASE_DIR / "models"
+
+MODEL_PATH = MODELS_DIR / "classifier_model.pkl"
+VECT_PATH  = MODELS_DIR / "vectorizer.pkl"
+ENC_PATH   = MODELS_DIR / "label_encoder.pkl"
+
+# -----------------------------
+# Validate model files
+# -----------------------------
+for p in [MODEL_PATH, VECT_PATH, ENC_PATH]:
+    if not p.exists():
+        st.error(f"Missing required file: {p.name}")
+        st.stop()
 
 # -----------------------------
 # Safe NLTK setup
@@ -40,14 +48,8 @@ stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
 
 # -----------------------------
-# Load trained models (NO TRAINING HERE)
+# Load artifacts
 # -----------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-MODEL_PATH = os.path.join(BASE_DIR, "models", "classifier_model.pkl")
-VECT_PATH = os.path.join(BASE_DIR, "models", "vectorizer.pkl")
-ENC_PATH = os.path.join(BASE_DIR, "models", "label_encoder.pkl")
-
 model = joblib.load(MODEL_PATH)
 vectorizer = joblib.load(VECT_PATH)
 label_encoder = joblib.load(ENC_PATH)
@@ -55,8 +57,10 @@ label_encoder = joblib.load(ENC_PATH)
 labels = label_encoder.classes_
 
 # -----------------------------
-# Labels, colors & emojis
+# UI Metadata
 # -----------------------------
+st.set_page_config(page_title="AI Comment Classifier", layout="wide")
+
 colors = {
     "Insult": "#ff4d4d",
     "Hate": "#cc0000",
@@ -76,137 +80,47 @@ emojis = {
 }
 
 # -----------------------------
-# Text preprocessing
+# Preprocessing
 # -----------------------------
-def clean_text(text: str) -> str:
+def clean_text(text):
     text = text.lower()
     text = re.sub(r"[^a-z\s]", "", text)
     tokens = nltk.word_tokenize(text)
-    tokens = [lemmatizer.lemmatize(w) for w in tokens if w not in stop_words]
+    tokens = [w for w in tokens if w not in stop_words]
     return " ".join(tokens)
 
 # -----------------------------
-# Custom CSS
+# UI
 # -----------------------------
-st.markdown("""
-<style>
-label {
-    font-size: 18px !important;
-    font-weight: 600;
-}
-div.stButton > button {
-    font-size: 18px;
-    padding: 12px 36px;
-    border-radius: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
+st.title("🤖 AI Comment Classifier")
 
-# -----------------------------
-# Header
-# -----------------------------
-st.markdown("""
-<div style='background:linear-gradient(90deg, #36d1dc, #5b86e5);
-            padding:25px;
-            border-radius:12px;
-            text-align:center;
-            color:white;
-            box-shadow:0 4px 20px rgba(0,0,0,0.2);'>
-    <h1>🤖 AI Comment Classifier</h1>
-    <p style='font-size:18px;'>
-        Detect Hate, Insult, Threat, Love, Harassment, or Neutral comments instantly
-    </p>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# -----------------------------
-# Comment input
-# -----------------------------
-comment_input = st.text_area(
-    "Enter your comment here",
-    height=260,
-    placeholder="Type or paste a comment to classify..."
+comment = st.text_area(
+    "Enter your comment",
+    height=200,
+    placeholder="Type or paste a comment..."
 )
 
-# -----------------------------
-# Predict Button
-# -----------------------------
 if st.button("Predict"):
-
-    if not comment_input.strip():
-        st.warning("Please enter a comment!")
+    if not comment.strip():
+        st.warning("Please enter a comment.")
     else:
-        cleaned = clean_text(comment_input)
+        cleaned = clean_text(comment)
         vect = vectorizer.transform([cleaned])
 
-        # Get probabilities safely
         if hasattr(model, "predict_proba"):
             probs = model.predict_proba(vect)[0]
         else:
             dec = model.decision_function(vect)[0]
             probs = np.exp(dec) / np.sum(np.exp(dec))
 
-        pred_index = np.argmax(probs)
-        predicted_label = labels[pred_index]
+        idx = np.argmax(probs)
+        label = labels[idx]
 
-        # -----------------------------
-        # Main Prediction Card
-        # -----------------------------
-        st.markdown(
-            f"""
-            <div style='background:{colors[predicted_label]};
-                        padding:25px;
-                        border-radius:16px;
-                        color:white;
-                        text-align:center;
-                        font-size:24px;
-                        font-weight:bold;
-                        box-shadow:0 8px 25px rgba(0,0,0,0.3);
-                        margin-bottom:20px;'>
-                {emojis[predicted_label]} Predicted: {predicted_label}
-                <br>
-                Confidence: {probs[pred_index]*100:.1f}%
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        st.success(f"{emojis[label]} **{label}** — Confidence: {probs[idx]*100:.1f}%")
 
-        # -----------------------------
-        # Probabilities table
-        # -----------------------------
-        df_probs = pd.DataFrame({
+        df = pd.DataFrame({
             "Label": labels,
-            "Probability": probs * 100
-        }).sort_values("Probability", ascending=False)
+            "Probability (%)": probs * 100
+        }).sort_values("Probability (%)", ascending=False)
 
-        # -----------------------------
-        # Top 3 predictions
-        # -----------------------------
-        st.markdown("<h3 style='text-align:center;'>Top 3 Predictions</h3>", unsafe_allow_html=True)
-        cols = st.columns(3)
-
-        for i in range(3):
-            row = df_probs.iloc[i]
-            cols[i].markdown(
-                f"""
-                <div style='background:{colors[row["Label"]]};
-                            padding:20px;
-                            border-radius:12px;
-                            color:white;
-                            text-align:center;
-                            font-size:18px;
-                            font-weight:bold;'>
-                    {emojis[row["Label"]]} {row["Label"]}
-                    <br>{row["Probability"]:.1f}%
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        # -----------------------------
-        # Probability chart
-        # -----------------------------
-        st.markdown("<h3 style='text-align:center;margin-top:30px;'>All Class Probabilities</h3>", unsafe_allow_html=True)
-        st.bar_chart(df_probs.set_index("Label"))
+        st.bar_chart(df.set_index("Label"))
