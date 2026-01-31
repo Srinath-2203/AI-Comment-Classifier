@@ -81,8 +81,9 @@ AI-Comment-Classifier/
 
 
 ---
-
-
+## 🚀 Demo Screenshot
+![AI Comment Classifier Demo](demo1.png)
+----
 
 \## 🚀 Run Locally
 
