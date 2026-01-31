@@ -1,4 +1,5 @@
 # train.py
+import os
 import pandas as pd
 import numpy as np
 import re
@@ -10,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import LinearSVC
 from sklearn.calibration import CalibratedClassifierCV
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report
 import joblib
 
 # -----------------------------
@@ -27,10 +28,9 @@ lemmatizer = WordNetLemmatizer()
 # -----------------------------
 # Load Dataset
 # -----------------------------
-df = pd.read_csv("data/comments.csv")  # your dataset
+df = pd.read_csv("data/comments.csv")
 print("Initial dataset shape:", df.shape)
 
-# Remove missing values
 df.dropna(subset=["comment", "label"], inplace=True)
 
 # -----------------------------
@@ -48,8 +48,8 @@ df["cleaned_comment"] = df["comment"].apply(clean_text)
 # -----------------------------
 # Encode labels
 # -----------------------------
-le = LabelEncoder()
-y = le.fit_transform(df["label"])
+label_encoder = LabelEncoder()
+y = label_encoder.fit_transform(df["label"])
 X = df["cleaned_comment"]
 
 # -----------------------------
@@ -60,7 +60,7 @@ X_train, X_val, y_train, y_val = train_test_split(
 )
 
 # -----------------------------
-# Vectorize text
+# Vectorization
 # -----------------------------
 vectorizer = TfidfVectorizer(
     ngram_range=(1, 2),
@@ -72,7 +72,6 @@ vectorizer = TfidfVectorizer(
 X_train_vect = vectorizer.fit_transform(X_train)
 X_val_vect = vectorizer.transform(X_val)
 
-
 # -----------------------------
 # Train model
 # -----------------------------
@@ -82,19 +81,22 @@ svm.fit(X_train_vect, y_train)
 model = CalibratedClassifierCV(svm, method="sigmoid", cv="prefit")
 model.fit(X_train_vect, y_train)
 
-
-
 # -----------------------------
 # Evaluate
 # -----------------------------
 y_pred = model.predict(X_val_vect)
-print("Classification Report:\n", classification_report(y_val, y_pred, target_names=le.classes_))
+print(
+    "Classification Report:\n",
+    classification_report(y_val, y_pred, target_names=label_encoder.classes_)
+)
 
 # -----------------------------
-# Save model & vectorizer & label encoder
+# SAVE MODELS (CRITICAL FIX)
 # -----------------------------
+os.makedirs("models", exist_ok=True)
+
 joblib.dump(model, "models/classifier_model.pkl")
 joblib.dump(vectorizer, "models/vectorizer.pkl")
-joblib.dump(le, "models/label_encoder.pkl")
+joblib.dump(label_encoder, "models/label_encoder.pkl")
 
 print("Training complete! Model, vectorizer, and label encoder saved.")
